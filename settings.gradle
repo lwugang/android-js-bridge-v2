@@ -1,0 +1,2 @@
+include ':app', ':library', ':js-bridge-compiler', ':js-bridge-anno'
+

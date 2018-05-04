@@ -1,0 +1,18 @@
+<html>
+    <script>
+        function test(){
+            //EasyJS.inject('android',['test']);
+            //window['android']={};
+
+            android.test(20,function(d){
+                  alert(d);
+                  return 2048;
+            });
+        }
+
+    </script>
+    <body>
+        <button onclick="test()">test1 call android</button>
+        <button onclick="ui.test(222222)">test1 call android</button>
+    </body>
+</html>
