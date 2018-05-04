@@ -19,7 +19,7 @@ Add it in your root build.gradle at the end of repositories:
 
 Add the dependency
 ~~~gradle
-    dependencies {
+  dependencies {
       implementation 'com.github.lwugang.android-js-bridge-v2:library:v2.0'
 	    implementation 'com.github.lwugang.android-js-bridge-v2:js-bridge-anno:v2.0'
 	    annotationProcessor 'com.github.lwugang.android-js-bridge-v2:js-bridge-compiler:v2.0'
