@@ -127,7 +127,7 @@ import javax.tools.JavaFileObject;
       objectSb.append(methodSb);
       objectSb.append("}}");
     }
-    objectSb.append("if(window.EasyJS&&window.EasyJS.injectFlag==0){JSBridgeReady();window.EasyJS.injectFlag=1}");
+    objectSb.append("if(window.EasyJS&&window.EasyJS.injectFlag==0){if(JSBridgeReady){JSBridgeReady();window.EasyJS.injectFlag=1}}");
     String jsCode = objectSb.toString();
     JavaFileObject sourceFile = mFiler.createSourceFile("com.liwg.jsbridge.library.Utils");
     Writer writer = null;
