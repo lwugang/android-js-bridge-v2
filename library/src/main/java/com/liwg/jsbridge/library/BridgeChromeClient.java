@@ -24,13 +24,13 @@ import android.webkit.WebView;
 
 public class BridgeChromeClient extends WebChromeClient {
   private final WebView webView;
-  private final IUtils utils;
+  private final IJSBridge utils;
   private WebChromeClient webChromeClient;
 
   private JsCallJava inject;
 
   public BridgeChromeClient(WebChromeClient webChromeClient, JsCallJava inject, WebView webView,
-      IUtils utils) {
+      IJSBridge utils) {
     this.webChromeClient = webChromeClient;
     this.inject = inject;
     this.webView = webView;

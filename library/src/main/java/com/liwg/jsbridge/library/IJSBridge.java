@@ -7,7 +7,7 @@ package com.liwg.jsbridge.library;
  * @desc
  * @version: V3.1.3
  */
-public interface IUtils {
+public interface IJSBridge {
   String getJsCode();
 
   void register(String name, Object obj);

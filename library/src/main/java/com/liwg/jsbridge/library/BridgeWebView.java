@@ -21,7 +21,7 @@ public class BridgeWebView extends WebView {
   private JsCallJava inject;
   private BridgeWebViewClient bridgeWebViewClient;
   private BridgeChromeClient bridgeChromeClient;
-  private static IUtils utils;
+  private static IJSBridge utils;
 
   public BridgeWebView(Context context) {
     super(context);
@@ -38,10 +38,15 @@ public class BridgeWebView extends WebView {
     init();
   }
 
+  public static IJSBridge getJsBridge() {
+    return utils;
+  }
+
   static {
     try {
-      utils =
-          (IUtils) Class.forName("com.liwg.jsbridge.library.Utils").getMethod("get").invoke(null);
+      utils = (IJSBridge) Class.forName("com.liwg.jsbridge.library.JSBridge")
+          .getMethod("get")
+          .invoke(null);
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (NoSuchMethodException e) {

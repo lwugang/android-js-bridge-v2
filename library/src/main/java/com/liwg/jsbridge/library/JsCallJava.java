@@ -86,9 +86,9 @@ public class JsCallJava {
 
   private Handler handler = new Handler(Looper.getMainLooper());
 
-  private IUtils utils;
+  private IJSBridge utils;
 
-  public JsCallJava(IUtils utils) {
+  public JsCallJava(IJSBridge utils) {
     this.utils = utils;
   }
 

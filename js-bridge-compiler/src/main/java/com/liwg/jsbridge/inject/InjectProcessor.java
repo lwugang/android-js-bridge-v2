@@ -110,7 +110,10 @@ import javax.tools.JavaFileObject;
       objectSb.append(String.format(objectJs, objectName, objectName));
       final StringBuilder methodSb = new StringBuilder();
       for (int i = 0; i < methodElements.size(); i++) {
-        ExecutableElement method = (ExecutableElement) methodElements.get(i);
+        Element element = methodElements.get(i);
+        if(!(element instanceof ExecutableElement))
+          continue;
+        ExecutableElement method = (ExecutableElement) element;
         String methodName = method.getSimpleName().toString();
         // 存在一个 <init>方法，过滤掉
         if (methodName.contains("<")) continue;
@@ -129,20 +132,20 @@ import javax.tools.JavaFileObject;
     }
     objectSb.append("if(window.EasyJS&&window.EasyJS.injectFlag==0){if(JSBridgeReady){JSBridgeReady();window.EasyJS.injectFlag=1}}");
     String jsCode = objectSb.toString();
-    JavaFileObject sourceFile = mFiler.createSourceFile("com.liwg.jsbridge.library.Utils");
+    JavaFileObject sourceFile = mFiler.createSourceFile("com.liwg.jsbridge.library.JSBridge");
     Writer writer = null;
     try {
       writer = sourceFile.openWriter();
       writer.write("package com.liwg.jsbridge.library;\n\n");
-      writer.write("  public final class Utils implements com.liwg.jsbridge.library.IUtils{\n");
-      writer.write("    public static final Utils INSTANCE = new Utils();\n");
+      writer.write("final class JSBridge implements com.liwg.jsbridge.library.IJSBridge{\n");
+      writer.write("    public static final JSBridge INSTANCE = new JSBridge();\n");
       writer.write("    public java.util.Map<String,Object> map = new java.util.HashMap<>();\n");
-      writer.write("    private Utils(){\n");
+      writer.write("    private JSBridge(){\n");
       for (Map.Entry<String, String> entry : map.entrySet()) {
         writer.write(String.format("     map.put(\"%s\",%s); \n", entry.getKey(), entry.getValue()));
       }
       writer.write("    }\n");
-      writer.write("    public static final Utils get(){\n");
+      writer.write("    public static final JSBridge get(){\n");
       writer.write("      return INSTANCE;\n");
       writer.write("    }\n");
       writer.write("    public String getJsCode(){\n");

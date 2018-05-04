@@ -35,7 +35,8 @@ Add the dependency
         android:id="@+id/web_view"/>
 ~~~
 ### Activity
-- A对象表示注入的插件对象,必须实现JsPlugin接口,所有需要注入的对象必须继承JsPlugin这个类并且 加上 @JsInject 注解标记
+- 注入的插件对象必须实现JsPlugin接口,所有需要注入的对象必须继承JsPlugin这个类并且 加上 @JsInject 注解标记
+- 被 @JsInject 标记的类会被自动注入，并调用空参的构造创建对象，如果有自定义构造 可以使用 ***webView.getJsBridge().register()***
 - 如果该类中的方法不希望被注入可以 使用 @JsInject 注解上的 filter参数过滤掉
 ~~~java
     public class MainActivity extends AppCompatActivity {
@@ -117,4 +118,4 @@ public class PreLoadActivity extends AppCompatActivity {
 
 [参考项目https://github.com/dukeland/EasyJSWebView](https://github.com/dukeland/EasyJSWebView)
 
-![](https://github.com/lwugang/android-js-bridge/blob/master/device-2017-07-14-171656.png)
+![](https://github.com/lwugang/android-js-bridge-v2/blob/master/android-js-bridge-v2p.gif)
