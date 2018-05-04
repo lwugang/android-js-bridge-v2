@@ -41,28 +41,38 @@ Add the dependency
 ~~~java
     public class MainActivity extends AppCompatActivity {
 
-      @Override protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        BridgeWebView webView = (BridgeWebView) findViewById(R.id.web_view);
-
-        webView.loadUrl("file:///android_asset/test.html");
-        WebView.setWebContentsDebuggingEnabled(true);
-      }
+       @Override protected void onCreate(Bundle savedInstanceState) {
+          super.onCreate(savedInstanceState);
+          setContentView(R.layout.activity_main);
+          PreLoadManager.get(this).preload("http://www.baidu.com", "http://www.youku.com");
+          BridgeWebView webView = (BridgeWebView) findViewById(R.id.web_view);
+          webView.getJsBridge().register("AB",new AB(this));
+          webView.loadUrl("file:///android_asset/test.html");
+          WebView.setWebContentsDebuggingEnabled(true);
+       }
 
       @JsInject public static class AB extends JsPlugin {
-        public static void test(String s,JSFunction jsFunction) {
-          jsFunction.execute("test execute   "+s);
-        }
+          private Context context;
 
-        public static void test1() {
-          Log.e("-------", "test1: ");
-        }
+          public AB() {
+          }
 
-        public static void test2() {
-          Log.e("-------", "test2: ");
-        }
+          public AB(Context context) {
+            this.context = context;
+          }
+
+          public void test(String s, JSFunction jsFunction) {
+            Toast.makeText(context, "js调用我", 1).show();
+            jsFunction.execute("test execute   " + s);
+          }
+
+          public void test1() {
+            Log.e("-------", "test1: ");
+          }
+
+          public void test2() {
+            Log.e("-------", "test2: ");
+          }
       }
     }
 ~~~
