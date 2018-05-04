@@ -19,18 +19,9 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
     PreLoadManager.get(this).preload("http://www.baidu.com", "http://www.youku.com");
     BridgeWebView webView = (BridgeWebView) findViewById(R.id.web_view);
-    //webView.addJavascriptInterface(new A(), "LYUIHandle");
-    //webView.addJavascriptInterface(new B(), "LYRouterHandle");
-    //webView.addJavascriptInterface(new B(), "LYUserHandle");
-    //syncCookie("file:///android_asset/test.html","token=123456");
 
-    //webView.loadUrl("http://10.41.3.97:8080/test.html");
     webView.loadUrl("file:///android_asset/test.html");
     WebView.setWebContentsDebuggingEnabled(true);
-
-    //webView.loadUrl("http://192.168.10.217:1080/static/h5user",url,null);
-    //webView.loadUrl("http://192.168.10.217:1080/static/h5user","http://192.168.10.217:1080/static/h5user/templates/service.html",null);
-    //imagePickerPlugin = ImagePickerPluginUtils.getInstance(this);
   }
 
   public void youku(View v) {

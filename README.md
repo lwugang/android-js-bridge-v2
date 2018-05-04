@@ -1,9 +1,11 @@
-# android-js-bridge
-###android js 互相调用
-- #####支持js匿名函数接收
-- #####支持js json对象接收
-- #####支持js函数返回值获取
-- #####通过注解注入js方法，支持自定义方法名
+# android-js-bridge-v2
+###android js 互相调用 第二版
+- ##### 支持js匿名函数接收
+- ##### 支持js json对象接收
+- ##### 支持js函数返回值获取
+- ##### 通过注解注入js方法
+- ##### 优化第一版的反射注入方式，采用注解处理器运行时生成注入代码,提高运行效率
+- ##### 加入简单的 webview 预加载功能
 
 Add it in your root build.gradle at the end of repositories:
 ~~~gradle
@@ -18,7 +20,9 @@ Add it in your root build.gradle at the end of repositories:
 Add the dependency
 ~~~gradle
     dependencies {
-	    compile 'com.github.lwugang:android-js-bridge:v0.1.8'
+      implementation 'com.github.lwugang.android-js-bridge-v2:library:v2.0'
+	    implementation 'com.github.lwugang.android-js-bridge-v2:js-bridge-anno:v2.0'
+	    implementation 'com.github.lwugang.android-js-bridge-v2:js-bridge-compiler:v2.0'
 	}
 
 ~~~
@@ -31,140 +35,81 @@ Add the dependency
         android:id="@+id/web_view"/>
 ~~~
 ###Activity
-- A对象表示注入的插件对象,必须实现JsPlugin接口,所有需要注入的方法必须加 @JsInject 注解标记
-- 或者在类上声明@JsInject 该类中的所有public就会被注入
-- 如果该类中的方法不希望被注入可以 对方法加上@NoInject注解
+- A对象表示注入的插件对象,必须实现JsPlugin接口,所有需要注入的对象必须继承JsPlugin这个类并且 加上 @JsInject 注解标记
+- 如果该类中的方法不希望被注入可以 使用 @JsInject 注解上的 filter参数过滤掉
 ~~~java
-    package com.src.wugang.jsbridge;
-    import android.content.Intent;
-    import android.os.Bundle;
-    import android.support.v7.app.AppCompatActivity;
-    import android.widget.Toast;
-    import com.wugang.jsbridge.library.BridgeWebView;
-    import com.wugang.jsbridge.library.JSFunction;
-    import com.wugang.jsbridge.library.JsPlugin;
-    import com.wugang.jsbridge.library.JsReturnValueCallback;
-    import com.example.anno.JsInject;
-    import com.wugang.jsbridge.library.utils.ImagePickerPluginUtils;
-    import org.json.JSONArray;
-    import org.json.JSONException;
-    import org.json.JSONObject;
-
     public class MainActivity extends AppCompatActivity {
 
-    private ImagePickerPluginUtils imagePickerPlugin ;
-
-    @Override protected void onCreate(Bundle savedInstanceState) {
+      @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         BridgeWebView webView = (BridgeWebView) findViewById(R.id.web_view);
-        webView.addJavascriptInterface(new A(), "android");
-        webView.addJavascriptInterface(new B(), "ui");
+
         webView.loadUrl("file:///android_asset/test.html");
-        imagePickerPlugin = ImagePickerPluginUtils.getInstance(this);
-    }
-
-    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        imagePickerPlugin.onActivityResult(requestCode,resultCode,data);
-    }
-
-    @JsInject
-    public class A implements JsPlugin {
-
-    public String getResult() {//不支持此中方式返回数据给js
-      return "getResult";
-    }
-    public void testFun(JSFunction jsFunction){
-      jsFunction.execute("testFun");
-    }
-    @JsInject("ddd")//注入方法重命名
-    public void testFunReturn(JSFunction jsFunction){
-      jsFunction.execute(new JsReturnValueCallback() {
-        @Override public void onReturnValue(String result) {
-          Toast.makeText(MainActivity.this,result,0).show();
-        }
-      },"testFunReturn");
-    }
-    }
-
-    public class B implements JsPlugin {
-
-    @JsInject("showImagePicker")
-    public void test(String data,JSFunction function) {
-      Toast.makeText(getApplicationContext(), data + "--", 1).show();
-      JSONObject jsonObject = new JSONObject();
-      try {
-        jsonObject.put("loginState",true);
-        JSONArray array = new JSONArray();
-        array.put(data);
-        jsonObject.put("arr",array);
-      } catch (JSONException e) {
-        e.printStackTrace();
+        WebView.setWebContentsDebuggingEnabled(true);
       }
-      function.execute(jsonObject);
+
+      @JsInject public static class AB extends JsPlugin {
+        public static void test(String s,JSFunction jsFunction) {
+          jsFunction.execute("test execute   "+s);
+        }
+
+        public static void test1() {
+          Log.e("-------", "test1: ");
+        }
+
+        public static void test2() {
+          Log.e("-------", "test2: ");
+        }
+      }
     }
-  }
-}
 ~~~
 HTML&JS代码
 ~~~js
 <html>
-    <script>
-        function test(){
-            ui.showImagePicker("showImagePicker",function(d){
-                   alert(d)
-                 //  document.getElementById('img01').src='data:image/png;base64,'+JSON.parse(d).images[0];
-            });
-        }
-        function testFun(){
-            android.testFun(function(data){
-                alert(data);
-            });
-        }
-        function testFunReturn(){
-            android.ddd(function(data){
-                alert(data);
-                return "testFunReturn";
-            });
-        }
-        function getResult(){//这种形式是获取不到数据的
-            var result = android.getResult();
-            alert(result);
-        }
-    </script>
-    <body>
-        <button onclick="getResult()">getResult</button>
-        <button onclick="testFun()">testFun</button>
-        <button onclick="testFunReturn()">testFunReturn</button>
-        <button onclick="test()">select img</button>
-        <img src="" id="img01" width="400" height="400"/>
-    </body>
+<script>
+      // 推荐使用方式，否则直接调用将无法调用到 原生方法
+      window.JSBridgeReady=function(){
+          console.log("---window EasyJSReady---")
+          AB.test2();
+          AB.test("call test",function(ret){
+              console.log(ret)
+          })
+      }
+</script>
+<script src="test.js"></script>
+
+<body>
+  <button onclick="javascript:location.reload()">refresh</button>
+</body>
 </html>
 ~~~
-###版本历史
-	###v0.0.2
-- #####修改注入方式，插件类中被注入的方法必须加上 @JsInject 注解标记
-###v0.0.5
-- #####修改注入bug
-###v0.1.1
-- #####修改注入bug保证100%注入成功
-###v0.1.4
-- #####修改注入bug,优化注入，提高注入成功率,保证100%注入成功
-###v0.1.6
-- #####修复bug，多个回调，生成的函数id重复造成多个函数执行同一个逻辑的问题
-###v0.1.8
-- #####修复bug loadurl死循环
-
-#Android7.0 webview 的一个坑(内部已处理)
-###Android7.0不会调用此方法
+#### 网页预加载
 ~~~java
-@Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
-}
+   //预加载，推荐在Application中调用
+   PreLoadManager.get(this).preload("http://www.baidu.com", "http://www.youku.com");
 ~~~
-###Android7.0 需要重写此方法
+###### Activity 中使用
 ~~~java
-@Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+public class PreLoadActivity extends AppCompatActivity {
+  @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    BridgeWebView webView = PreLoadManager.get(this).getWebView();
+    setContentView(webView);
+    webView.setWebViewClient(new WebViewClient(){
+      @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+        if(request.hasGesture()){
+          Intent intent = new Intent(PreLoadActivity.this,PreLoadActivity.class);
+          intent.putExtra("url",request.getUrl());
+          startActivity(intent);
+          return true;
+        }
+        return super.shouldOverrideUrlLoading(view, request);
+      }
+    });
+    webView.loadUrl(getIntent().getStringExtra("url"));
+  }
 }
 ~~~
 
