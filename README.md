@@ -1,5 +1,5 @@
 # android-js-bridge-v2
-###android js 互相调用 第二版
+### android js 互相调用 第二版
 - ##### 支持js匿名函数接收
 - ##### 支持js json对象接收
 - ##### 支持js函数返回值获取
@@ -27,14 +27,14 @@ Add the dependency
 
 ~~~
 
-####使用方式
+#### 使用方式
 ~~~xml
 	<com.wugang.jsbridge.library.BridgeWebView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/web_view"/>
 ~~~
-###Activity
+### Activity
 - A对象表示注入的插件对象,必须实现JsPlugin接口,所有需要注入的对象必须继承JsPlugin这个类并且 加上 @JsInject 注解标记
 - 如果该类中的方法不希望被注入可以 使用 @JsInject 注解上的 filter参数过滤掉
 ~~~java
