@@ -152,7 +152,7 @@ import javax.tools.JavaFileObject;
       writer.write("      return \"" + jsCode + "\";\n");
       writer.write("    }\n");
       writer.write(
-          "    /**注册对象， 被@JsPlugin注解标记的对象会自动注入，并调用空参的构造函数，\n如果需要重写构造，需保留空参的构造，并调用此方法注册\n*/\n");
+          "    /**注册对象， 被@JsPlugin注解标记的对象会自动注入，并调用空参的构造函数，\n  如果需要重写构造，需保留空参的构造，并调用此方法注册\n  */\n");
       writer.write("    public void register(String name,Object obj){\n");
       writer.write("      map.put(name,obj);\n");
       writer.write("    }\n");
