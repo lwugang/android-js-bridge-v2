@@ -99,8 +99,7 @@ import javax.tools.JavaFileObject;
       //    next);
       TypeElement typeElement = (TypeElement) next;
       if (!typeElement.getSuperclass().toString().equals("com.liwg.jsbridge.library.JsPlugin")) {
-        error("cover JsInject note class must extends JsPlugin", next);
-        return;
+        info("cover JsInject note class must extends JsPlugin", next);
       }
       String objectName = jsInject.value();
       if (objectName == null || objectName.length() < 1) {
@@ -179,6 +178,10 @@ import javax.tools.JavaFileObject;
   }
 
   void error(CharSequence msg, Element element) {
+    mMessager.printMessage(Diagnostic.Kind.ERROR, msg, element);
+  }
+
+  void info(CharSequence msg, Element element) {
     mMessager.printMessage(Diagnostic.Kind.WARNING, msg, element);
   }
 }

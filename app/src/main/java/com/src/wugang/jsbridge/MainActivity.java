@@ -15,6 +15,9 @@ import com.liwg.jsbridge.library.JSFunction;
 import com.liwg.jsbridge.library.JsPlugin;
 import com.liwg.jsbridge.library.PreLoadManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     startActivity(intent);
   }
 
-  @JsInject public static class AB extends JsPlugin {
+  @JsInject public static class AB {
     private Context context;
 
     public AB() {
@@ -49,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
       this.context = context;
     }
 
-    public void test(String s, JSFunction jsFunction) {
+    public void test(String s, JSFunction jsFunction) throws JSONException {
       Toast.makeText(context, "js调用我", 1).show();
-      jsFunction.execute("test execute   " + s);
+      JSONObject jsonObject = new JSONObject();
+      jsonObject.put("aa",12);
+      jsFunction.execute(jsonObject.toString());
     }
 
     public void test1() {

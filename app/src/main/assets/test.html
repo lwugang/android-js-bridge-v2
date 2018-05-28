@@ -2,14 +2,11 @@
 <script>
         window.JSBridgeReady=function(){
             console.log("---window EasyJSReady---")
-            //AB.test2();
-            AB.test("call test",function(ret){
-                alert("native 回调我")
-            })
+
         }
         function test(){
              AB.test("call test",function(ret){
-                alert("native 回调我")
+                alert("native 回调我"+JSON.stringify(ret))
             })
         }
 </script>
