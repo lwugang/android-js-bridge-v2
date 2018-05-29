@@ -52,9 +52,9 @@ public class MainActivity extends AppCompatActivity {
       this.context = context;
     }
 
-    public void test(String s, JSFunction jsFunction) throws JSONException {
-      Toast.makeText(context, "js调用我", 1).show();
-      JSONObject jsonObject = new JSONObject();
+    public void test(JSONObject jsonObject, JSFunction jsFunction) throws JSONException {
+      Toast.makeText(context, "js调用我"+jsonObject.toString(), 1).show();
+      jsonObject = new JSONObject();
       jsonObject.put("aa",12);
       jsFunction.execute(jsonObject.toString());
     }

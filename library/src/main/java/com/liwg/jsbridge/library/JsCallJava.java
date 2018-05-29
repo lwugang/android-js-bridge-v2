@@ -5,6 +5,9 @@ import android.os.Looper;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,72 +18,78 @@ import java.util.List;
 import java.util.Map;
 
 public class JsCallJava {
-  String INJECT_JS = "if(!window.EasyJS){\n"
-      + "    window.EasyJS = {\n"
-      + "        __callbacks: {},\n"
-      + "        injectFlag:0,\n"
-      + "        \n"
-      + "        invokeCallback: function (cbID, removeAfterExecute){\n"
-      + "            var args = Array.prototype.slice.call(arguments);\n"
-      + "            args.shift();\n"
-      + "            args.shift();"
-      + "for (var i = 0, l = args.length; i < l; i++){\n"
-      + "/*args[i] = decodeURIComponent(args[i]);*/"
-      + "\t\t}"
-      + "            var cb = EasyJS.__callbacks[cbID];\n"
-      + "            if (removeAfterExecute){\n"
-      + "                EasyJS.__callbacks[cbID] = undefined;\n"
-      + "            }\n"
-      + "            return cb.apply(null, args);\n"
-      + "        },\n"
-      + "        \n"
-      + "        call: function (obj, functionName, args){\n"
-      + "            var formattedArgs = [];\n"
-      + "            for (var i = 0, l = args.length; i < l; i++){\n"
-      + "                if (typeof args[i] == \"function\"){\n"
-      + "                    formattedArgs.push(\"f\");\n"
-      + "                    var cbID = \"__cb\" + parseInt((+new Date)*Math.random()*Math.random()*Math.random());\n"
-      + "                    EasyJS.__callbacks[cbID] = args[i];\n"
-      + "                    formattedArgs.push(cbID);\n"
-      + "                }else{\n"
-      + "                    formattedArgs.push(\"s\");\n"
-      + "                    formattedArgs.push(encodeURIComponent(args[i]));\n"
-      + "                }\n"
-      + "            }\n"
-      + "            \n"
-      + "            var argStr = (formattedArgs.length > 0 ? \":\" + encodeURIComponent(formattedArgs.join(\":\")) : \"\");\n"
-      + "            \n"
-      + "            var iframe = document.createElement(\"IFRAME\");\n"
-      + "            iframe.setAttribute(\"src\", \"easy-js:\" + obj + \":\" + encodeURIComponent(functionName) + argStr);\n"
-      + "            document.documentElement.appendChild(iframe);\n"
-      + "            iframe.parentNode.removeChild(iframe);\n"
-      + "            iframe = null;\n"
-      + "            \n"
-      + "            var ret = EasyJS.retValue;\n"
-      + "            EasyJS.retValue = undefined;\n"
-      + "            \n"
-      + "            if (ret){\n"
-      + "                return decodeURIComponent(ret);\n"
-      + "            }\n"
-      + "        },\n"
-      + "        \n"
-      + "        inject: function (obj, methods){\n"
-      + "            if(typeof(window[obj])!='undefined')\n"
-      + "                return;\n"
-      + "            window[obj] = {};\n"
-      + "            var jsObj = window[obj];\n"
-      + "            for (var i = 0, l = methods.length; i < l; i++){\n"
-      + "                (function (){\n"
-      + "                    var method = methods[i];\n"
-      + "                    var jsMethod = method.replace(new RegExp(\":\", \"g\"), \"\");\n"
-      + "                    jsObj[jsMethod] = function (){\n"
-      + "                        return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\n"
-      + "                    };\n"
-      + "                })();\n"
-      + "            }\n"
-      + "        }\n"
-      + "    };\n"
-      + "}";
+  String INJECT_JS = "if(!window.EasyJS){\n" +
+          "    window.EasyJS = {\n" +
+          "        __callbacks: {},\n" +
+          "        injectFlag:0,\n" +
+          "        isJson:function(obj){\n" +
+          "            var isjson = typeof(obj) == \"object\" && Object.prototype.toString.call(obj).toLowerCase() == \"[object object]\" && !obj.length;   \n" +
+          "            return isjson;  \n" +
+          "        },\n" +
+          "        invokeCallback: function (cbID, removeAfterExecute){\n" +
+          "            var args = Array.prototype.slice.call(arguments);\n" +
+          "            args.shift();\n" +
+          "            args.shift();\n" +
+          "            /*for (var i = 0, l = args.length; i < l; i++){\n" +
+          "                args[i] = decodeURIComponent(args[i]);\t\t\n" +
+          "            }*/\n" +
+          "            var cb = EasyJS.__callbacks[cbID];\n" +
+          "            if (removeAfterExecute){\n" +
+          "                EasyJS.__callbacks[cbID] = undefined;\n" +
+          "            }\n" +
+          "            return cb.apply(null, args);\n" +
+          "        },\n" +
+          "        \n" +
+          "        call: function (obj, functionName, args){\n" +
+          "            var formattedArgs = [];\n" +
+          "            for (var i = 0, l = args.length; i < l; i++){\n" +
+          "                if (typeof args[i] == \"function\"){\n" +
+          "                    formattedArgs.push(\"f\");\n" +
+          "                    var cbID = \"__cb\" + parseInt((+new Date)*Math.random()*Math.random()*Math.random());\n" +
+          "                    EasyJS.__callbacks[cbID] = args[i];\n" +
+          "                    formattedArgs.push(cbID);\n" +
+          "                }else if(EasyJS.isJson(args[i])){\n" +
+          "                    formattedArgs.push(\"json\");\n" +
+          "                    formattedArgs.push(encodeURIComponent(JSON.stringify(args[i])));\n" +
+          "                }else{\n" +
+          "                    formattedArgs.push(\"s\");\n" +
+          "                    formattedArgs.push(encodeURIComponent(args[i]));\n" +
+          "                }\n" +
+          "            }\n" +
+          "            \n" +
+          "            var argStr = (formattedArgs.length > 0 ? \":\" + encodeURIComponent(formattedArgs.join(\":\")) : \"\");\n" +
+          "            \n" +
+          "            var iframe = document.createElement(\"IFRAME\");\n" +
+          "            iframe.setAttribute(\"src\", \"easy-js:\" + obj + \":\" + encodeURIComponent(functionName) + argStr);\n" +
+          "            document.documentElement.appendChild(iframe);\n" +
+          "            iframe.parentNode.removeChild(iframe);\n" +
+          "            iframe = null;\n" +
+          "            \n" +
+          "            var ret = EasyJS.retValue;\n" +
+          "            EasyJS.retValue = undefined;\n" +
+          "            \n" +
+          "            if (ret){\n" +
+          "                return decodeURIComponent(ret);\n" +
+          "            }\n" +
+          "        },\n" +
+          "        \n" +
+          "        inject: function (obj, methods){\n" +
+          "            if(typeof(window[obj])!='undefined')\n" +
+          "                return;\n" +
+          "            window[obj] = {};\n" +
+          "            var jsObj = window[obj];\n" +
+          "            for (var i = 0, l = methods.length; i < l; i++){\n" +
+          "                (function (){\n" +
+          "                    var method = methods[i];\n" +
+          "                    var jsMethod = method.replace(new RegExp(\":\", \"g\"), \"\");\n" +
+          "                    jsObj[jsMethod] = function (){\n" +
+          "                        return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\n" +
+          "                    };\n" +
+          "                })();\n" +
+          "            }\n" +
+          "        }\n" +
+          "    };\n" +
+          "}";
   //返回值回调队列
   private Map<String, JSFunction> arrayMap;
 
@@ -147,15 +156,13 @@ public class JsCallJava {
               arrayMap.put(key, func);
             } else if ("s".equals(argsType)) {
               javaMethodParams.add(URLDecoder.decode(argsValue, "UTF-8"));
+            } else if("json".equals(argsType)){
+              javaMethodParams.add(new JSONObject(URLDecoder.decode(argsValue, "UTF-8")));
             }
           }
         }
         invoke(destJavaObj, methodName, javaMethodParams.toArray());
-      } catch (UnsupportedEncodingException e) {
-        e.printStackTrace();
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      } catch (InvocationTargetException e) {
+      } catch (Exception e) {
         e.printStackTrace();
       }
       return true;
