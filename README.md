@@ -8,13 +8,7 @@
 - ##### 优化第一版的反射注入方式，采用注解处理器编译时生成注入代码,提高运行效率
 - ##### 加入简单的 webview 预加载功能
 
-<iframe
-    height=450
-    width=800
-    src="https://github.com/lwugang/android-js-bridge-v2/blob/master/device-2018-07-05-112940.mp4"
-    frameborder=0
-    allowfullscreen>
-</iframe>
+![](https://github.com/lwugang/android-js-bridge-v2/blob/master/device-2018-07-05-112940.gif)
 
 Add it in your root build.gradle at the end of repositories:
 ~~~gradle
