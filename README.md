@@ -132,6 +132,9 @@ public class PreLoadActivity extends AppCompatActivity {
 }
 ~~~
 
+#### 推荐使用者不要混淆代码
+        -keep com.liwg.jsbridge.library.**{*;}
+
 [参考项目https://github.com/lwugang/safe-java-js-webview-bridge](https://github.com/lwugang/safe-java-js-webview-bridge)
 
 [参考项目https://github.com/dukeland/EasyJSWebView](https://github.com/dukeland/EasyJSWebView)
