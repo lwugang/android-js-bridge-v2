@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     startActivity(intent);
   }
 
-  @JsInject public static class AB {
+  @JsInject public static class AB extends JsPlugin{
     private Context context;
 
     public AB() {
@@ -57,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
       jsonObject = new JSONObject();
       jsonObject.put("aa",12);
       jsFunction.execute(jsonObject.toString());
+    }
+
+    public String getResult(){
+      return "nativeResult";
     }
 
     public void test1() {

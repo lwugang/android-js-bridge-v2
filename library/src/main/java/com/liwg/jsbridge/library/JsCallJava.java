@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
+import android.webkit.JsPromptResult;
 import android.webkit.WebView;
 
 import org.json.JSONObject;
@@ -23,15 +24,15 @@ public class JsCallJava {
           "        __callbacks: {},\n" +
           "        injectFlag:0,\n" +
           "        isJson:function(obj){\n" +
-          "            var isjson = typeof(obj) == \"object\" && Object.prototype.toString.call(obj).toLowerCase() == \"[object object]\" && !obj.length;   \n" +
-          "            return isjson;  \n" +
+          "            var isjson = typeof(obj) == \"object\" && Object.prototype.toString.call(obj).toLowerCase() == \"[object object]\" && !obj.length;\n" +
+          "            return isjson;\n" +
           "        },\n" +
           "        invokeCallback: function (cbID, removeAfterExecute){\n" +
           "            var args = Array.prototype.slice.call(arguments);\n" +
           "            args.shift();\n" +
           "            args.shift();\n" +
           "            /*for (var i = 0, l = args.length; i < l; i++){\n" +
-          "                args[i] = decodeURIComponent(args[i]);\t\t\n" +
+          "                args[i] = decodeURIComponent(args[i]);\n" +
           "            }*/\n" +
           "            var cb = EasyJS.__callbacks[cbID];\n" +
           "            if (removeAfterExecute){\n" +
@@ -39,7 +40,7 @@ public class JsCallJava {
           "            }\n" +
           "            return cb.apply(null, args);\n" +
           "        },\n" +
-          "        \n" +
+          "\n" +
           "        call: function (obj, functionName, args){\n" +
           "            var formattedArgs = [];\n" +
           "            for (var i = 0, l = args.length; i < l; i++){\n" +
@@ -56,23 +57,25 @@ public class JsCallJava {
           "                    formattedArgs.push(encodeURIComponent(args[i]));\n" +
           "                }\n" +
           "            }\n" +
-          "            \n" +
+          "\n" +
           "            var argStr = (formattedArgs.length > 0 ? \":\" + encodeURIComponent(formattedArgs.join(\":\")) : \"\");\n" +
-          "            \n" +
-          "            var iframe = document.createElement(\"IFRAME\");\n" +
+          "\n" +
+          "            return window.prompt(\"\", \"easy-js:\" + obj + \":\" + encodeURIComponent(functionName) + argStr);\n" +
+          "            /*var iframe = document.createElement(\"IFRAME\");\n" +
+          "\n" +
           "            iframe.setAttribute(\"src\", \"easy-js:\" + obj + \":\" + encodeURIComponent(functionName) + argStr);\n" +
           "            document.documentElement.appendChild(iframe);\n" +
           "            iframe.parentNode.removeChild(iframe);\n" +
           "            iframe = null;\n" +
-          "            \n" +
+          "\n" +
           "            var ret = EasyJS.retValue;\n" +
           "            EasyJS.retValue = undefined;\n" +
-          "            \n" +
+          "\n" +
           "            if (ret){\n" +
           "                return decodeURIComponent(ret);\n" +
-          "            }\n" +
+          "            }*/\n" +
           "        },\n" +
-          "        \n" +
+          "\n" +
           "        inject: function (obj, methods){\n" +
           "            if(typeof(window[obj])!='undefined')\n" +
           "                return;\n" +
@@ -131,7 +134,7 @@ public class JsCallJava {
     });
   }
 
-  public boolean shouldOverrideUrlLoading(WebView view, String url) {
+  public boolean intercept(WebView view, String url, JsPromptResult result) {
     if (url.startsWith("easy-js:")) {
       String[] strings = url.split(":");
       //js调用的对象
@@ -161,7 +164,7 @@ public class JsCallJava {
             }
           }
         }
-        invoke(destJavaObj, methodName, javaMethodParams.toArray());
+        result.confirm(invoke(destJavaObj, methodName, javaMethodParams.toArray()).toString());
       } catch (Exception e) {
         e.printStackTrace();
       }
@@ -170,7 +173,7 @@ public class JsCallJava {
     return false;
   }
 
-  private void invoke(Object javaObj, String methodName, Object[] objects)
+  private Object invoke(Object javaObj, String methodName, Object[] objects)
       throws InvocationTargetException, IllegalAccessException {
     Method[] declaredMethods = javaObj.getClass().getDeclaredMethods();
     for (int i = 0; i < declaredMethods.length; i++) {
@@ -180,10 +183,11 @@ public class JsCallJava {
         int length = parameterTypes.length;
         //如果方法声明的参数长度和 实际参数个数不想等
         if (length != objects.length) continue;
-        declaredMethods[i].invoke(javaObj, getValueByType(parameterTypes, objects));
-        return;
+        Object ret = declaredMethods[i].invoke(javaObj, getValueByType(parameterTypes, objects));
+        return ret==null?"":ret;
       }
     }
+    return "";
   }
 
   private Object[] getValueByType(Class<?>[] parameterTypes, Object[] objects) {

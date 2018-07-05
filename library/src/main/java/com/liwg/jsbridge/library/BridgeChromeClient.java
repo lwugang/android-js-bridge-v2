@@ -49,6 +49,7 @@ public class BridgeChromeClient extends WebChromeClient {
 
   @Override public boolean onJsPrompt(WebView view, String url, String message, String defaultValue,
       JsPromptResult result) {
+    if (inject.intercept(view, defaultValue,result)) return true;
     return webChromeClient.onJsPrompt(view, url, message, defaultValue, result);
   }
 

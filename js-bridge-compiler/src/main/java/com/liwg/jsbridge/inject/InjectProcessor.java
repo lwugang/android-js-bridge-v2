@@ -98,9 +98,9 @@ import javax.tools.JavaFileObject;
       //        +"----------"+next.getEnclosedElements()+"------"+next.asType().toString()+"--------",
       //    next);
       TypeElement typeElement = (TypeElement) next;
-      if (!typeElement.getSuperclass().toString().equals("com.liwg.jsbridge.library.JsPlugin")) {
-        info("cover JsInject note class must extends JsPlugin", next);
-      }
+//      if (!typeElement.getSuperclass().toString().equals("com.liwg.jsbridge.library.JsPlugin")) {
+//        info("cover JsInject note class must extends JsPlugin", next);
+//      }
       String objectName = jsInject.value();
       if (objectName == null || objectName.length() < 1) {
         objectName = typeElement.getSimpleName().toString();

@@ -3,9 +3,18 @@
 - ##### 支持js匿名函数接收
 - ##### 支持js json对象接收
 - ##### 支持js函数返回值获取
+- ##### 支持js调用原生直接获取返回值
 - ##### 通过注解注入js方法
 - ##### 优化第一版的反射注入方式，采用注解处理器编译时生成注入代码,提高运行效率
 - ##### 加入简单的 webview 预加载功能
+
+<iframe
+    height=450
+    width=800
+    src="https://github.com/lwugang/android-js-bridge-v2/blob/master/device-2018-07-05-112940.mp4"
+    frameborder=0
+    allowfullscreen>
+</iframe>
 
 Add it in your root build.gradle at the end of repositories:
 ~~~gradle
@@ -20,9 +29,9 @@ Add it in your root build.gradle at the end of repositories:
 Add the dependency
 ~~~gradle
   dependencies {
-      implementation 'com.github.lwugang.android-js-bridge-v2:library:v2.0.2'
-	    implementation 'com.github.lwugang.android-js-bridge-v2:js-bridge-anno:v2.0.2'
-	    annotationProcessor 'com.github.lwugang.android-js-bridge-v2:js-bridge-compiler:v2.0.2'
+      implementation 'com.github.lwugang.android-js-bridge-v2:library:v2.0.3'
+	    implementation 'com.github.lwugang.android-js-bridge-v2:js-bridge-anno:v2.0.3'
+	    annotationProcessor 'com.github.lwugang.android-js-bridge-v2:js-bridge-compiler:v2.0.3'
 	}
 
 ~~~
@@ -44,8 +53,8 @@ Add the dependency
        @Override protected void onCreate(Bundle savedInstanceState) {
           super.onCreate(savedInstanceState);
           setContentView(R.layout.activity_main);
-          PreLoadManager.get(this).preload("http://www.baidu.com", "http://www.youku.com");
           BridgeWebView webView = (BridgeWebView) findViewById(R.id.web_view);
+          // 如果需要自定义构造函数，需要手动注册
           webView.getJsBridge().register("AB",new AB(this));
           webView.loadUrl("file:///android_asset/test.html");
           WebView.setWebContentsDebuggingEnabled(true);
@@ -66,8 +75,10 @@ Add the dependency
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("aa",12);
                 jsFunction.execute(jsonObject.toString());
-              }
-
+          }
+          public String getResult(){
+              return "nativeResult";
+          }
           public void test1() {
             Log.e("-------", "test1: ");
           }
@@ -82,20 +93,20 @@ HTML&JS代码
 ~~~js
 <html>
 <script>
-      // 如果想要在window.onload调用 原生无法，是无法调用到的，请在此方法中调用
-      window.JSBridgeReady=function(){
-          console.log("---window EasyJSReady---")
-      }
-      function test(){
-                   AB.test("call test",function(ret){
-                      alert("native 回调我"+JSON.stringify(ret))
-                  })
-              }
+        window.JSBridgeReady=function(){
+            console.log("---window EasyJSReady---")
+        }
+        function test(){
+             AB.test({"aa":123},function(ret){
+                alert("native 回调我"+JSON.stringify(ret))
+            })
+        }
 </script>
-<script src="test.js"></script>
-
 <body>
-  <button onclick="javascript:location.reload()">refresh</button>
+<button onclick="javascript:location.reload()">refresh</button>
+<button onclick="test()">Test</button>
+<!--获取android返回的结果-->
+<button onclick="javascript:alert(AB.getResult())">getNativeResult</button>
 </body>
 </html>
 ~~~
@@ -130,5 +141,3 @@ public class PreLoadActivity extends AppCompatActivity {
 [参考项目https://github.com/lwugang/safe-java-js-webview-bridge](https://github.com/lwugang/safe-java-js-webview-bridge)
 
 [参考项目https://github.com/dukeland/EasyJSWebView](https://github.com/dukeland/EasyJSWebView)
-
-![](https://github.com/lwugang/android-js-bridge-v2/blob/master/android-js-bridge-v2p.gif)

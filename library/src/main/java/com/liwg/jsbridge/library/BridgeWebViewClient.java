@@ -38,7 +38,6 @@ public class BridgeWebViewClient extends WebViewClient {
   }
 
   @Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
-    if (inject.shouldOverrideUrlLoading(view, url)) return true;
     return webViewClient.shouldOverrideUrlLoading(view, url);
   }
   //   ----------------需要处理的方法 end-------------------
@@ -120,9 +119,7 @@ public class BridgeWebViewClient extends WebViewClient {
   }
 
   @Override public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-    if(inject.shouldOverrideUrlLoading(view, request.getUrl().toString()))
-      return true;
-    return super.shouldOverrideUrlLoading(view, request);
+    return webViewClient.shouldOverrideUrlLoading(view, request);
   }
 
   @Override public void onPageCommitVisible(WebView view, String url) {

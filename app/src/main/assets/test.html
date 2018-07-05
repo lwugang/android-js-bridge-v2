@@ -2,7 +2,6 @@
 <script>
         window.JSBridgeReady=function(){
             console.log("---window EasyJSReady---")
-
         }
         function test(){
              AB.test({"aa":123},function(ret){
@@ -13,5 +12,7 @@
 <body>
 <button onclick="javascript:location.reload()">refresh</button>
 <button onclick="test()">Test</button>
+<!--获取android返回的结果-->
+<button onclick="javascript:alert(AB.getResult())">getNativeResult</button>
 </body>
 </html>

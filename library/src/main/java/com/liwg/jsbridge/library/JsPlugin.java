@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 /**
  * Created by lwg on 17-6-27.<br/>
- * <b>js 插件类,需要注入的类，必须继承JsPlugin，必须保留空参的构造函数</b>
+ * <b>js 插件类,需要注入的类，推荐继承JsPlugin，必须保留空参的构造函数</b>
  */
 public class JsPlugin {
   public JsPlugin() {
